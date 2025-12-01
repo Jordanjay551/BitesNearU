@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>BitesNearU — Food Waste Reduction Marketplace (Demo)</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <div class="brand" onclick="go('#home')">
+        <strong>BitesNearU</strong>
+      </div>
+
+      <div class="metrics" id="global-metrics" aria-hidden="true">
+        <div><strong id="m-meals">12,847</strong><small>meals</small></div>
+        <div><strong id="m-saved">£45,678</strong><small>saved</small></div>
+        <div><strong id="m-co2">25,694 kg</strong><small>CO₂</small></div>
+      </div>
+
+      <nav class="nav">
+        <button class="link" onclick="go('#search')">Search</button>
+        <button class="link" onclick="go('#restaurants')">Restaurants</button>
+        <button class="link" onclick="go('#cart')">Cart <span id="cart-count" class="pill">0</span></button>
+        <button class="link" onclick="go('#profile')">Profile</button>
+        <button id="auth-btn" class="cta" onclick="openAuth()">Sign in / Sign up</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container" id="app">
+    <!-- HOME / DISCOVERY -->
+    <section id="screen-home" class="screen">
+      <div class="hero card">
+        <h1>Discover the best restaurants nearU</h1>
+        <p class="lead">Affordable near-expiry food. Save money while reducing waste.</p>
+        <div class="tabs">
+          <button class="tab active" data-tab="popular">Popular right now</button>
+          <button class="tab" data-tab="new">What's new</button>
+          <button class="tab" data-tab="deals">Best deals</button>
+        </div>
+        <div id="home-list" class="list"></div>
+      </div>
+    </section>
+
+    <!-- SEARCH -->
+    <section id="screen-search" class="screen" hidden>
+      <div class="card">
+        <h2>Search & Filters</h2>
+        <div class="row">
+          <input id="search-input" placeholder="Search meals or restaurants (e.g. 'Green leaf market')" />
+          <button class="btn" id="toggle-filters">Show Filters</button>
+        </div>
+
+        <div id="filters" class="filters" hidden>
+          <label>Price: £<span id="price-val">0</span> - £20</label>
+          <input type="range" id="price-range" min="0" max="20" value="20" step="0.5" />
+          <div class="filter-row">
+            <label><input type="checkbox" id="f-budget"/> Budget Friendly (≤£6)</label>
+            <label><input type="checkbox" id="f-healthy"/> Healthy Options</label>
+            <label><input type="checkbox" id="f-veg"/> Vegetarian</label>
+          </div>
+          <div class="filter-row">
+            <label><input type="checkbox" value="Bakery" class="f-cat"/> Bakery & Pastries</label>
+            <label><input type="checkbox" value="Ready Meals" class="f-cat"/> Ready Meals</label>
+            <label><input type="checkbox" value="Fresh Produce" class="f-cat"/> Fresh Produce</label>
+            <label><input type="checkbox" value="Beverages" class="f-cat"/> Beverages</label>
+          </div>
+          <div class="filter-actions">
+            <button class="btn outline" id="clear-filters">Clear All Filters</button>
+            <button class="btn primary" id="apply-filters">Apply Filters</button>
+          </div>
+        </div>
+
+        <h3>Results</h3>
+        <div id="search-results" class="list"></div>
+      </div>
+    </section>
+
+    <!-- RESTAURANTS -->
+    <section id="screen-restaurants" class="screen" hidden>
+      <div class="card">
+        <h2>Restaurants Near You</h2>
+        <div id="restaurants-list" class="list"></div>
+      </div>
+    </section>
+
+    <!-- DEAL DETAIL -->
+    <section id="screen-deal" class="screen" hidden>
+      <div class="card" id="deal-card"></div>
+    </section>
+
+    <!-- CART / CHECKOUT -->
+    <section id="screen-cart" class="screen" hidden>
+      <div class="card">
+        <h2>Your Cart</h2>
+        <div id="cart-list" class="list"></div>
+
+        <div class="checkout card small">
+          <h3>Order Summary</h3>
+          <div id="order-summary"></div>
+          <label>Pickup time:</label>
+          <select id="pickup-time"></select>
+
+          <label>Promo code</label>
+          <input id="promo" placeholder="Enter code (SAVE5)"/>
+          <button class="btn" id="apply-promo">Apply</button>
+
+          <h3>Total: <span id="total-amt">£0.00</span></h3>
+          <p class="muted" id="saving-amt"></p>
+
+          <h4>Payment Method</h4>
+          <select id="pay-method"></select>
+          <div class="row">
+            <button class="btn outline" id="manage-cards">Manage Cards</button>
+            <button class="btn primary" id="place-order">Place Order (Pay)</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROFILE -->
+    <section id="screen-profile" class="screen" hidden>
+      <div class="card">
+        <div class="profile-top row">
+          <div class="avatar" id="profile-avatar" onclick="openAvatarModal()"></div>
+          <div>
+            <h2 id="profile-name">Guest</h2>
+            <p class="muted" id="profile-email">Not signed in</p>
+            <div class="stats row">
+              <div><strong id="p-saved">£0.00</strong><small>saved</small></div>
+              <div><strong id="p-meals">0</strong><small>meals</small></div>
+              <div><strong id="p-points">0</strong><small>points</small></div>
+            </div>
+          </div>
+        </div>
+
+        <h3>Loyalty & Achievements</h3>
+        <div class="card small" id="loyalty">
+          <label>Points progress: <span id="points-progress">0 / 500</span></label>
+          <div class="progress"><div id="progress-bar"></div></div>
+        </div>
+
+        <div id="achievements" class="row"></div>
+
+        <h3>Payment Methods</h3>
+        <div id="payment-methods" class="list"></div>
+        <button class="btn" onclick="openCardModal()">Add Payment Method</button>
+
+        <div class="row" style="margin-top:1rem">
+          <button class="btn outline" onclick="signOut()">Sign Out</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">© <span id="year"></span> BitesNearU — Demo. All data stored locally for prototyping.</div>
+  </footer>
+
+  <!-- AUTH MODAL -->
+  <div id="modal-auth" class="modal" hidden>
+    <div class="modal-panel card">
+      <button class="modal-close" onclick="closeAuth()">✕</button>
+      <h3 id="auth-heading">Sign In</h3>
+
+      <div id="auth-testimonial" class="quote card small">
+        "Perfect for students. Great food, great prices!" — Emma R.
+      </div>
+
+      <label>Name</label>
+      <input id="auth-name" placeholder="Austin" />
+      <label>Email</label>
+      <input id="auth-email" placeholder="austinblue@gmail.com" />
+      <label>Password</label>
+      <input id="auth-pass" type="password" />
+      <div class="row" style="margin-top:.5rem">
+        <button class="btn primary" id="auth-action">Sign in</button>
+        <button class="btn outline" id="switch-auth">Switch to Sign up</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- AVATAR PICKER -->
+  <div id="modal-avatar" class="modal" hidden>
+    <div class="modal-panel card">
+      <button class="modal-close" onclick="closeAvatarModal()">✕</button>
+      <h3>Choose your avatar</h3>
+      <div class="avatars" id="avatar-list"></div>
+    </div>
+  </div>
+
+  <!-- CARD MANAGEMENT -->
+  <div id="modal-cards" class="modal" hidden>
+    <div class="modal-panel card">
+      <button class="modal-close" onclick="closeCardModal()">✕</button>
+      <h3>Payment Methods</h3>
+      <div id="cards-list" class="list"></div>
+      <h4>Add card (demo)</h4>
+      <input id="card-number" placeholder="Card number (4242...)" />
+      <input id="card-name" placeholder="Name on card" />
+      <button class="btn" id="add-card">Add Card</button>
+    </div>
+  </div>
+
+<script src="script.js"></script>
+</body>
+</html>
